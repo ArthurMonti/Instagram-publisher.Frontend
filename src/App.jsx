@@ -1,11 +1,13 @@
 import React, { useEffect, useState } from "react";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8000";
+const API_ORIGIN = API_BASE_URL.replace(/\/$/, "");
+const DEFAULT_META_REDIRECT_URI = `${API_ORIGIN}/api/auth/meta/callback`;
 
 const initialMeta = {
   meta_app_id: "",
   meta_app_secret: "",
-  meta_redirect_uri: "http://localhost:8000/api/auth/meta/callback",
+  meta_redirect_uri: DEFAULT_META_REDIRECT_URI,
 };
 
 const initialTranslation = {
