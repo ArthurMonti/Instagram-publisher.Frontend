@@ -81,6 +81,7 @@ function App() {
   const [selectedAccountId, setSelectedAccountId] = useState("");
   const [jobs, setJobs] = useState([]);
   const [meta, setMeta] = useState(initialMeta);
+  const [manualMetaToken, setManualMetaToken] = useState("");
   const [translation, setTranslation] = useState(initialTranslation);
   const [watermark, setWatermark] = useState(initialWatermark);
   const [videoTemplate, setVideoTemplate] = useState(initialVideoTemplate);
@@ -408,6 +409,30 @@ function App() {
       const response = await fetchJson("/api/auth/meta/start");
       window.open(response.auth_url, "_blank", "noopener,noreferrer");
       setMessage("Fluxo OAuth aberto em nova aba.");
+    } catch (error) {
+      setMessage(error.message);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function connectInstagramWithToken() {
+    const accessToken = manualMetaToken.trim();
+    if (!accessToken) {
+      setMessage("Informe o token da conta do Instagram.");
+      return;
+    }
+
+    setLoading(true);
+    setMessage("");
+    try {
+      await fetchJson("/api/auth/meta/token", {
+        method: "POST",
+        body: JSON.stringify({ access_token: accessToken }),
+      });
+      setManualMetaToken("");
+      await loadInitialData();
+      setMessage("Conta conectada pelo token.");
     } catch (error) {
       setMessage(error.message);
     } finally {
@@ -1123,6 +1148,19 @@ function App() {
             </button>
             <button className="ghost-button" type="button" onClick={connectInstagram} disabled={loading}>
               Conectar Instagram
+            </button>
+            <label className="full-width">
+              Token da conta
+              <input
+                type="password"
+                value={manualMetaToken}
+                onChange={(event) => setManualMetaToken(event.target.value)}
+                autoComplete="off"
+                placeholder="Cole um access token válido"
+              />
+            </label>
+            <button className="ghost-button" type="button" onClick={connectInstagramWithToken} disabled={loading}>
+              Conectar com token
             </button>
           </form>
           <div className="hint">Secret configurado: {settings.meta.meta_app_secret_configured ? "sim" : "não"}</div>
